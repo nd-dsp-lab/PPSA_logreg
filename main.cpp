@@ -25,7 +25,7 @@ void handler(int sig) {
         signal(SIGSEGV, handler);
         //std::cout << "Hello, World!" << std::endl;
         //DCRTPoly a = DCRTPoly();
-        unsigned int plain_bits = 8; //log t
+        unsigned int plain_bits = 50; //log t
         unsigned int num_users = 1; //n
         unsigned int iters = 1; //i
         unsigned int k_prime = 1; //k
@@ -114,7 +114,7 @@ void handler(int sig) {
 
         pp.PolynomialEnvSetup(poly_noise_times, poly_enc_times);
 
-        std::vector<double> inputvec(pp.aggregator.plaintextParams.GetRingDimension()/2,500);
+        std::vector<double> inputvec(pp.aggregator.plaintextParams.GetRingDimension()/2,6);
 
         std::cout << inputvec << std::endl;
 

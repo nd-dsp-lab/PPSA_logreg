@@ -321,7 +321,7 @@ double static StdDev2(const std::vector<std::complex<double>>& vec, const std::v
     return stddev;
 }
 
-std::vector<std::complex<double>> static Decode(CKKSPackedEncoding & encoding, size_t noiseScaleDeg, double scalingFactor, ScalingTechnique scalTech,
+std::vector<double> static Decode(CKKSPackedEncoding & encoding, size_t noiseScaleDeg, double scalingFactor, ScalingTechnique scalTech,
                                 ExecutionMode executionMode) {
     double p       = encoding.GetEncodingParams()->GetPlaintextModulus();
     double powP    = 0.0;
@@ -429,11 +429,13 @@ std::vector<std::complex<double>> static Decode(CKKSPackedEncoding & encoding, s
         //  }
         // }
 
+        std::cout << logstd << " bits of precision " << std::endl;
+        std::cout << p << " precision "<< std::endl;
         //   If less than 5 bits of precision is observed
-        if (logstd > p - 5.0)
-            OPENFHE_THROW(math_error,
-                          "The decryption failed because the approximation error is "
-                          "too high. Check the parameters. ");
+        //if (logstd > p - 5.0)
+        //    OPENFHE_THROW(math_error,
+        //                  "The decryption failed because the approximation error is "
+        //                  "too high. Check the parameters. ");
 
         // real values
         std::vector<std::complex<double>> realValues(slots);
@@ -456,7 +458,7 @@ std::vector<std::complex<double>> static Decode(CKKSPackedEncoding & encoding, s
         for (size_t i = 0; i < slots; ++i) {
             double real = scale * (curValues[i].real() + conjugate[i].real());
             // real += powP * dgg.GenerateIntegerKarney(0.0, stddev);
-            //real += powP * d(g);
+            real += powP * d(g);
             double imag = scale * (curValues[i].imag() + conjugate[i].imag());
             // imag += powP * dgg.GenerateIntegerKarney(0.0, stddev);
             imag += powP * d(g);
@@ -478,10 +480,14 @@ std::vector<std::complex<double>> static Decode(CKKSPackedEncoding & encoding, s
         //m_logError = std::round(std::log2(stddev * std::sqrt(2 * slots)));
 
         //TODO
-        return realValues;
+        //return curValues;
     }
 
-    return curValues;
+    std::vector<double> realsValue(curValues.size());
+    std::transform(curValues.begin(), curValues.end(), curValues.begin(),
+                   [](std::complex<double> da) { return da.real(); });
+
+    return realsValue;
     //return false;
 }
 
@@ -634,7 +640,43 @@ void static Test(DCRTPoly & ciphertext,
  * @param numOfTower - # of polynomials
  * @param pbits - number of bits in the prime, to start with
  * @return
- */
+
+template <typename I>
+static std::shared_ptr<ILDCRTParams<I>> GenerateDCRTParams(usint m, usint numOfTower, usint pbits) {
+    OPENFHE_DEBUG_FLAG(false);
+    OPENFHE_DEBUG("in GenerateDCRTParams");
+    OPENFHE_DEBUGEXP(m);
+    OPENFHE_DEBUGEXP(numOfTower);
+    OPENFHE_DEBUGEXP(pbits);
+    if (numOfTower == 0) {
+        OPENFHE_THROW(math_error, "Can't make parms with numOfTower == 0");
+    }
+
+    std::vector<NativeInteger> moduli(numOfTower);
+    std::vector<NativeInteger> rootsOfUnity(numOfTower);
+
+    NativeInteger q = FirstPrime<NativeInteger>(pbits, m);
+    I modulus(1);
+
+    usint j = 0;
+    OPENFHE_DEBUGEXP(q);
+
+    for (;;) {
+        moduli[j]       = q;
+        rootsOfUnity[j] = RootOfUnity(m, q);
+        modulus         = modulus * I(q.ConvertToInt());
+        OPENFHE_DEBUG("j " << j << " modulus " << q << " rou " << rootsOfUnity[j]);
+        if (++j == numOfTower)
+            break;
+
+        q = NextPrime(q, m);
+    }
+
+    auto params = std::make_shared<ILDCRTParams<I>>(m, moduli, rootsOfUnity);
+
+    return params;
+}*/
+
 template <typename I>
 static std::shared_ptr<ILDCRTParams<I>> GenerateDCRTParams(usint m, usint numOfTower, usint pbits) {
     OPENFHE_DEBUG_FLAG(false);
@@ -670,5 +712,6 @@ static std::shared_ptr<ILDCRTParams<I>> GenerateDCRTParams(usint m, usint numOfT
 
     return params;
 }
+
 
 #endif

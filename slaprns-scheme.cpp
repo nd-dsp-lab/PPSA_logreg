@@ -49,6 +49,7 @@ void SLAPScheme::Init(){
     CKKSparameters.SetScalingModSize(25);
     //plaintextParams.GetModulus().GetLengthForBase(2)
     CKKSparameters.SetBatchSize(plaintextParams.GetRingDimension()/2);
+    CKKSparameters.SetScalingTechnique(FIXEDAUTO);
     //CKKSparameters.SetPlaintextModulus(plaintextParams.GetModulus().ConvertToInt());
     CKKSContext = GenCryptoContext(CKKSparameters);
     CKKSContext->GetCryptoParameters()->SetElementParams(plaintextParams.GetParams());
@@ -371,24 +372,23 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
     auto decryptedCKKS = std::dynamic_pointer_cast<CKKSPackedEncoding>(decrypted);
     decryptedCKKS->SetNoiseScaleDeg(2); //2
     decryptedCKKS->SetLevel(1); // 1
-    decryptedCKKS->SetScalingFactor(1); // 40
+    decryptedCKKS->SetScalingFactor(40); // 40
     decryptedCKKS->SetSlots(ret.GetRingDimension()/2); //which is the N/2
     //decryptedCKKS->GetEncodingParams()->SetPlaintextModulus(plaintextParams.GetModulus().ConvertToInt());
 
 
-    //const auto cryptoParamsCKKS = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(CKKSContext->GetCryptoParameters());
+    const auto cryptoParamsCKKS = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(CKKSContext->GetCryptoParameters());
 
-    //Decode(*decryptedCKKS.get(),1, 40,
-    //                      NORESCALE, EXEC_EVALUATION);
-
+    std::vector<double> intermediate1 = Decode(*decryptedCKKS.get(),1, 40,
+                          FIXEDAUTO, CKKSparameters.GetExecutionMode());
+    std::cout << *ret.GetParams() << std::endl;
     //CKKSPackedEncoding float_result = CKKSPackedEncoding(cvec,0);
-    decryptedCKKS->Decode(1,40,FIXEDAUTO,CKKSparameters.GetExecutionMode());
+    //decryptedCKKS->Decode(1,40,FIXEDAUTO,CKKSparameters.GetExecutionMode());
 
     //Plaintext plaintext;
     //plaintext = std::move(decrypted);
     //std::cout << "PLAINTEXT " << plaintext << std::endl;
-
-    std::vector<double> intermediate1 = decryptedCKKS->GetRealPackedValue();
+    //std::vector<double> intermediate1 = decryptedCKKS->GetRealPackedValue();
 
     //std::cout << "Decrypted without exponentiation " << intermediate1 << std::endl;
 
