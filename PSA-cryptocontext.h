@@ -59,12 +59,12 @@ public:
 
     void PolynomialEnvSetup(std::vector<double>& noise_times, std::vector<double>& enc_times);
 
-    void PolynomialEncryption(std::vector<double> inputvec, const unsigned int iter, std::vector<double>& noise_times,
+    void PolynomialEncryption(std::vector<double> &inputvec, std::vector<double> &expvec, const unsigned int iter, std::vector<double>& noise_times,
                                   std::vector<double>& enc_times);
 
     void TestPolynomialDecryption(const unsigned int iters, std::vector<double> & dec_times);
 
-    std::vector<double> PolynomialDecryption(const unsigned int iters, std::vector<double> & dec_times);
+    std::vector<double> PolynomialDecryption(std::vector<double> &constants, const unsigned int iters, std::vector<double> & dec_times);
 
 
 };

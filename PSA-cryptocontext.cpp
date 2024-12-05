@@ -203,6 +203,7 @@ void PSACryptocontext::TestPolynomialEncryption(const bool do_noise, const unsig
     aggregationKey.SetValuesToZero();
     aggregator.PublicKey(publicKey, ts);
     std::vector<double> inputvec(aggregator.plaintextParams.GetRingDimension()/2,500);
+    std::vector<double> expvec(aggregator.plaintextParams.GetRingDimension()/2,1);
     //std::vector<double> inputvec = dl.GenerateIntVector(aggregator.plaintextParams.GetRingDimension()/2, 1, GAUSS);
     noise_times.reserve(iters);
     enc_times.reserve(iters);
@@ -226,7 +227,7 @@ void PSACryptocontext::TestPolynomialEncryption(const bool do_noise, const unsig
         //std::cout << inputvec << std::endl;
         result = aggregator.PolynomialEncrypt(inputvec, privateKeys.at(i % privateKeys.size()), publicKey,
                               do_noise,
-                              noise_time, enc_time, 1);
+                              noise_time, enc_time, expvec);
         if(i < numUsers){
             ciphertexts.push_back(result); //Hope this copies it
             //std::cout << result << std::endl;
@@ -269,12 +270,13 @@ void PSACryptocontext::TestPolynomialDecryption(const unsigned int iters, std::v
 //    dl.addRandomNoise(aggregationKey, this->scale, UNIFORM);
 
     std::vector<double> result;
+    std::vector<double> constants(aggregator.plaintextParams.GetRingDimension()/2,1);
 
     for(unsigned int i = 0; i < iters; i++){
         double dec_time;
         double agg_time;
         auto begin = std::chrono::steady_clock::now();
-        result = aggregator.PolynomialDecrypt(ciphertexts, aggregationKey, publicKey, dec_time, numUsers);
+        result = aggregator.PolynomialDecrypt(ciphertexts, constants, aggregationKey, publicKey, dec_time, numUsers);
         auto end = std::chrono::steady_clock::now();
         //std::cout << "Decryption result for PPSA " << result << std::endl;
         //No clue what this was supposed to do.
@@ -293,7 +295,7 @@ void PSACryptocontext::TestPolynomialDecryption(const unsigned int iters, std::v
     return;
 }
 
-std::vector<double> PSACryptocontext::PolynomialDecryption(const unsigned int iters, std::vector<double> & dec_times){
+std::vector<double> PSACryptocontext::PolynomialDecryption(std::vector<double> &constants, const unsigned int iters, std::vector<double> & dec_times){
     dec_times.clear();
     dec_times.reserve(iters);
     std::vector<double> result;
@@ -301,7 +303,7 @@ std::vector<double> PSACryptocontext::PolynomialDecryption(const unsigned int it
     for(unsigned int i = 0; i < iters; i++){
         double dec_time;
         auto begin = std::chrono::steady_clock::now();
-        result = aggregator.PolynomialDecrypt(ciphertexts, aggregationKey, publicKey, dec_time, numUsers);
+        result = aggregator.PolynomialDecrypt(ciphertexts, constants, aggregationKey, publicKey, dec_time, numUsers);
         auto end = std::chrono::steady_clock::now();
         dec_times.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count());
 
@@ -310,14 +312,14 @@ std::vector<double> PSACryptocontext::PolynomialDecryption(const unsigned int it
 }
 
 
-void PSACryptocontext::PolynomialEncryption(std::vector<double> inputvec, const unsigned int iter, std::vector<double>& noise_times,
+void PSACryptocontext::PolynomialEncryption(std::vector<double> &inputvec, std::vector<double> &expvec, const unsigned int iter, std::vector<double>& noise_times,
                                             std::vector<double>& enc_times){
     DCRTPoly result = aggregator.ciphertextParams.CloneParametersOnly();
     result.SetValuesToZero();
     double noise_time, enc_time;
     result = aggregator.PolynomialEncrypt(inputvec, privateKeys.at(iter % privateKeys.size()), publicKey,
                                               true,
-                                              noise_time, enc_time, 1);
+                                              noise_time, enc_time, expvec);
     ciphertexts.push_back(result); //Hope this copies it
     noise_times.push_back(noise_time);
     enc_times.push_back(enc_time);

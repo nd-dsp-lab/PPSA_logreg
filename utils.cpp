@@ -71,6 +71,12 @@ static void ppow(std::vector<double> & noisy_input,const uint64_t e) {
     }
 }
 
+static void ppow(std::vector<double> & noisy_input,const std::vector<double> & e) {
+    for(size_t mod_idx = 0; mod_idx < noisy_input.size(); mod_idx++) {
+        noisy_input.at(mod_idx) = pow(noisy_input.at(mod_idx),e[mod_idx]);
+    }
+}
+
 static size_t choose_parameters(unsigned int required_q) {
     size_t n;
         //Ok
@@ -91,10 +97,10 @@ static size_t choose_parameters(unsigned int required_q) {
 
     static size_t numTowers(unsigned int required_q){
     if (required_q <= 27){
-        return 1;
+        return 2;
     }
     else if (required_q <= 54){
-        return 1;
+        return 2;
     }
     else if (required_q <= 109){
         return 3;
