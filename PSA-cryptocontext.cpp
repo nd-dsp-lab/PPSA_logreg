@@ -75,9 +75,9 @@ void PSACryptocontext::genSlapScheme() {
     aggregator.plaintextParams.SetValuesToZero();
 
     //std::cout << "Plaintext modulus " << aggregator.plaintextParams.GetModulus() << std::endl;
-    //std::cout << "Plaintext, M: " << N;
-    //std::cout << ", Num of towers: " << numTowers(plain_mod_size);
-    //std::cout << ", Pbits : " << plain_mod_size << std::endl;
+    std::cout << "Plaintext, M: " << N;
+    std::cout << ", Num of towers: " << numTowers(plain_mod_size);
+    std::cout << ", Pbits : " << plain_mod_size << std::endl;
 
     BigInteger t = aggregator.plaintextParams.GetModulus();
 
@@ -147,9 +147,9 @@ PSACryptocontext::PSACryptocontext(unsigned int t,
     aggregator.ciphertextParams = DCRTPoly(parms,EVALUATION);
     aggregator.ciphertextParams.SetValuesToZero();
 
-    //std::cout << "Ciphertext, M: " << choose_parameters(log_q);
-    //std::cout << ", Num of towers: " << numTowers(log_q);
-    //std::cout << ", Log_q: " << log_q << std::endl;
+    std::cout << "Ciphertext, M: " << choose_parameters(log_q);
+    std::cout << ", Num of towers: " << numTowers(log_q);
+    std::cout << ", Log_q: " << log_q << std::endl;
     genSlapScheme();
     calculateParams();
 

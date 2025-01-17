@@ -97,10 +97,10 @@ static size_t choose_parameters(unsigned int required_q) {
 
     static size_t numTowers(unsigned int required_q){
     if (required_q <= 27){
-        return 2;
+        return 1;
     }
     else if (required_q <= 54){
-        return 2;
+        return 1;
     }
     else if (required_q <= 109){
         return 3;
