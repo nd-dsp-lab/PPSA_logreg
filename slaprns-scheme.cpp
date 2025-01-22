@@ -93,7 +93,7 @@ void SLAPScheme::Init(){
 
 
     CKKSparameters.SetMultiplicativeDepth(1);
-    CKKSparameters.SetScalingModSize(20);
+    CKKSparameters.SetScalingModSize(10);
     //plaintextParams.GetModulus().GetLengthForBase(2)
     CKKSparameters.SetBatchSize(plaintextParams.GetRingDimension()/2);
     CKKSparameters.SetScalingTechnique(FIXEDAUTO);
@@ -239,11 +239,11 @@ DCRTPoly SLAPScheme::NSEncrypt(const DCRTPoly &plaintext, const DCRTPoly &privat
     DCRTPoly clone = plaintext.Clone();
     clone.SwitchFormat();
     DCRTPoly x_raised = SwitchMod(clone,ciphertextParams);
-    //x_raised.OverrideFormat(COEFFICIENT);
+    x_raised.OverrideFormat(COEFFICIENT);
     //SwitchMod(x_raised,ciphertextParams);
     //SwitchBasis(x_raised, ciphertextParams);
             //x.base_conv(ctext_parms, *t_to_q);
-     std::cout << "Before switch " << plaintext.GetFormat() << " " << plaintext << std::endl;
+     std::cout << "Before switch " << clone.GetFormat() << " " << clone << std::endl;
     std::cout << " Basis result " << x_raised.GetFormat() << " " << x_raised << std::endl;
     //std::cout << "Here we see that " << plaintextParams.GetRingDimension() << " is greater than " << x_raised.GetRingDimension() << std::endl;
     //x_raised.SwitchFormat();
@@ -442,7 +442,7 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
 
     ////Plaintext decrypted = CKKSContext->MakeCKKSPackedPlaintext(complexValues);
 
-    int scalingFactor = 20;
+    int scalingFactor = 10;
     auto decryptedCKKS = std::dynamic_pointer_cast<CKKSPackedEncoding>(decrypted);
     decryptedCKKS->SetNoiseScaleDeg(2); //2
     decryptedCKKS->SetLevel(1); // 1
