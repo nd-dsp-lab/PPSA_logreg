@@ -500,6 +500,59 @@ std::vector<double> static Decode(CKKSPackedEncoding & encoding, size_t noiseSca
 
 
 
+double static getStdDev(CKKSPackedEncoding & encoding, size_t noiseScaleDeg, double scalingFactor, ScalingTechnique scalTech,
+                 ExecutionMode executionMode) {
+    double p       = encoding.GetEncodingParams()->GetPlaintextModulus();
+    double powP    = 0.0;
+    uint32_t Nh    = encoding.GetElementRingDimension() / 2;
+    uint32_t slots = encoding.GetSlots();
+    uint32_t gap   = Nh / slots;
+    //value.clear();
+    std::vector<std::complex<double>> curValues(slots);
+
+    if (true) {
+        if (scalTech == FLEXIBLEAUTO || scalTech == FLEXIBLEAUTOEXT)
+            powP = pow(scalingFactor, -1);
+        else
+            powP = pow(2, -p);
+
+        const NativeInteger& q = encoding.GetElementModulus().ConvertToInt();
+        NativeInteger qHalf    = q >> 1;
+
+        std::cout << std::endl << "[ ";
+        for (size_t i = 0, idx = 0; i < slots; ++i, idx += gap) {
+            std::complex<double> cur;
+
+            if (encoding.GetElement<NativePoly>()[idx] > qHalf)
+                cur.real(-((q - encoding.GetElement<NativePoly>()[idx])).ConvertToDouble());
+            else
+                cur.real((encoding.GetElement<NativePoly>()[idx]).ConvertToDouble());
+
+            if (encoding.GetElement<NativePoly>()[idx + Nh] > qHalf)
+                cur.imag(-((q - encoding.GetElement<NativePoly>()[idx + Nh])).ConvertToDouble());
+            else
+                cur.imag((encoding.GetElement<NativePoly>()[idx + Nh]).ConvertToDouble());
+
+            curValues[i] = cur;
+            std::cout << " " << cur;
+        }
+        std::cout << " ]" << std::endl;
+    }
+
+    // compute m(1/X) corresponding to Conj(z), where z is the decoded vector
+    auto conjugate = Conjugate2(curValues);
+    std::cout << "Conjugate " << conjugate << std::endl;
+
+    // Estimate standard deviation from 1/2 (m(X) - m(1/x)),
+    // which corresponds to Im(z)
+    double stddev = StdDev2(curValues, conjugate);
+    std::cout << "Standard Deviation " << stddev << std::endl;
+
+    double logstd = std::log2(stddev);
+    return logstd;
+}
+
+
 
 static DCRTPolyImpl<BigVector> ScaleAndRound(
         DCRTPoly input, const std::shared_ptr<ILDCRTParams<bigintdyn::ubint<unsigned long>>> paramsOutput, const std::vector<std::vector<NativeInteger>>& tOSHatInvModsDivsModo,

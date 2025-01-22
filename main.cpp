@@ -23,7 +23,7 @@ void handler(int sig) {
 
     int main(int argc, char ** argv) {
         signal(SIGSEGV, handler);
-        std::cout << "Hello, World!" << std::endl;
+        std::cout << "Hello, World! " << std::endl;
         //DCRTPoly a = DCRTPoly();
         unsigned int plain_bits = 50; //log t
         unsigned int num_users = 1; //n
