@@ -93,7 +93,7 @@ void SLAPScheme::Init(){
 
 
     CKKSparameters.SetMultiplicativeDepth(1);
-    CKKSparameters.SetScalingModSize(10);
+    CKKSparameters.SetScalingModSize(25);
     //plaintextParams.GetModulus().GetLengthForBase(2)
     CKKSparameters.SetBatchSize(plaintextParams.GetRingDimension()/2);
     CKKSparameters.SetScalingTechnique(FIXEDAUTO);
@@ -411,11 +411,11 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
     DCRTPoly ret = (scheme == NS) ?
                    NSDecrypt(ciphertexts, aggregationKey, publicKey, num_additions) : MSDecrypt(ciphertexts, aggregationKey, publicKey, num_additions);
     std::cout << "Here's the decrypted cyphertext from PSA " << ret.GetFormat() << " " <<  ret << std::endl;
-    DCRTPoly e = plaintextParams.CloneParametersOnly();
-    e.SetValuesToZero();
-    e.OverrideFormat(COEFFICIENT);
-    dl.addRandomNoise(e,3, LAPLACIAN);
-    ret += e;
+    // DCRTPoly e = plaintextParams.CloneParametersOnly();
+    // e.SetValuesToZero();
+    // e.OverrideFormat(COEFFICIENT);
+    // dl.addRandomNoise(e,3, LAPLACIAN);
+    // ret += e;
     //TO-DO PUT THIS BACK
     Plaintext decrypted = CKKSContext->GetPlaintextForDecrypt(CKKS_PACKED_ENCODING,
                                                  ret.GetParams(), CKKSContext->GetEncodingParams());
@@ -442,7 +442,7 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
 
     ////Plaintext decrypted = CKKSContext->MakeCKKSPackedPlaintext(complexValues);
 
-    int scalingFactor = 10;
+    int scalingFactor = 25;
     auto decryptedCKKS = std::dynamic_pointer_cast<CKKSPackedEncoding>(decrypted);
     decryptedCKKS->SetNoiseScaleDeg(2); //2
     decryptedCKKS->SetLevel(1); // 1
