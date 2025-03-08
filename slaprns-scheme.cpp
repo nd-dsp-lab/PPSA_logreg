@@ -243,8 +243,8 @@ DCRTPoly SLAPScheme::NSEncrypt(const DCRTPoly &plaintext, const DCRTPoly &privat
     //SwitchMod(x_raised,ciphertextParams);
     //SwitchBasis(x_raised, ciphertextParams);
             //x.base_conv(ctext_parms, *t_to_q);
-     std::cout << "Before switch " << clone.GetFormat() << " " << clone << std::endl;
-    std::cout << " Basis result " << x_raised.GetFormat() << " " << x_raised << std::endl;
+    //std::cout << "Before switch " << clone.GetFormat() << " " << clone << std::endl;
+    //std::cout << " Basis result " << x_raised.GetFormat() << " " << x_raised << std::endl;
     //std::cout << "Here we see that " << plaintextParams.GetRingDimension() << " is greater than " << x_raised.GetRingDimension() << std::endl;
     //x_raised.SwitchFormat();
             //Now add the message
@@ -319,12 +319,12 @@ DCRTPoly SLAPScheme::NSDecrypt(const std::vector<DCRTPoly>& ciphertexts,const DC
     auto end = std::chrono::steady_clock::now();
     //return ret.base_conv(plain_parms, *q_to_t);
     //ret.SwitchFormat();
-    std::cout << "Before second switch " << ret.GetFormat() << " " << ret << std::endl;
+    //std::cout << "Before second switch " << ret.GetFormat() << " " << ret << std::endl;
     DCRTPoly ret2 = SwitchMod(ret,plaintextParams);
     //std::cout << "After second switch no mod" << ret2 << std::endl;
     //ret2.SwitchFormat();
     ret2.OverrideFormat(COEFFICIENT);
-    std::cout << "After second switch " << ret2.GetFormat() << " " << ret2 << std::endl;
+    //std::cout << "After second switch " << ret2.GetFormat() << " " << ret2 << std::endl;
     //SwitchBasis(ret, plaintextParams);
     return ret2;
 }
@@ -369,7 +369,7 @@ DCRTPoly SLAPScheme::PolynomialEncrypt(const std::vector<double>& plaintext,
     } else {
         noise_time = 0.0;
     }
-    std::cout << "After ppow: " << noisy_input << std::endl;
+    //std::cout << "After ppow: " << noisy_input << std::endl;
     //std::cout << "Noisy Input before log " << noisy_input << std::endl;
     //Now get key and do encryption
     //Now get key and do encryption
@@ -396,7 +396,7 @@ DCRTPoly SLAPScheme::PolynomialEncrypt(const std::vector<double>& plaintext,
 
     DCRTPoly poly_result = ckks_result->GetElement<DCRTPoly>();
     //poly_result.SwitchFormat();
-    std::cout << "CCE Result:  " << poly_result.GetFormat() << " " <<  poly_result << std::endl;
+    //std::cout << "CCE Result:  " << poly_result.GetFormat() << " " <<  poly_result << std::endl;
     DCRTPoly enc_result = (scheme == NS) ? NSEncrypt(poly_result, privateKey, publicKey) :
                           MSEncrypt(poly_result, privateKey, publicKey);
     auto end = std::chrono::steady_clock::now();
@@ -410,7 +410,7 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
     auto begin = std::chrono::steady_clock::now();
     DCRTPoly ret = (scheme == NS) ?
                    NSDecrypt(ciphertexts, aggregationKey, publicKey, num_additions) : MSDecrypt(ciphertexts, aggregationKey, publicKey, num_additions);
-    std::cout << "Here's the decrypted cyphertext from PSA " << ret.GetFormat() << " " <<  ret << std::endl;
+    //std::cout << "Here's the decrypted cyphertext from PSA " << ret.GetFormat() << " " <<  ret << std::endl;
     // DCRTPoly e = plaintextParams.CloneParametersOnly();
     // e.SetValuesToZero();
     // e.OverrideFormat(COEFFICIENT);
@@ -424,7 +424,7 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
     //Test(ret, &decrypted->GetElement<NativePoly>());
     //Test(ret, &decrypted->GetElement<NativePoly>());
     //ret.SwitchFormat();
-    std::cout << "Format before final switch " << ret.GetFormat() << std::endl;
+    //std::cout << "Format before final switch " << ret.GetFormat() << std::endl;
     decrypted->GetElement<NativePoly>() = ret.GetElementAtIndex(0);
     //decrypted->GetElement<Poly>() = ret.CRTInterpolate();
     //decrypted->GetElement<NativePoly>() = ret.ToNativePoly();
@@ -455,7 +455,7 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
 
     double stdDev = getStdDev(*decryptedCKKS.get(),1, scalingFactor,
                               FIXEDAUTO, CKKSparameters.GetExecutionMode());
-    std::cout << "StdDev " << stdDev << std::endl;
+    //std::cout << "StdDev " << stdDev << std::endl;
     //std::vector<double> intermediate1 = Decode(*decryptedCKKS.get(),1, 40,
     //                      FIXEDAUTO, CKKSparameters.GetExecutionMode());
     //std::cout << *ret.GetParams() << std::endl;
@@ -467,13 +467,13 @@ std::vector<double> SLAPScheme::PolynomialDecrypt(const std::vector<DCRTPoly>& c
     //std::cout << "PLAINTEXT " << plaintext << std::endl;
     std::vector<double> intermediate1 = decryptedCKKS->GetRealPackedValue();
 
-    std::cout << "Decrypted without exponentiation " << intermediate1 << std::endl;
+    //std::cout << "Decrypted without exponentiation " << intermediate1 << std::endl;
 
     for (int i = 0; i < intermediate1.size(); i++){
         intermediate1.at(i) = exp(intermediate1.at(i));
     }
 
-    std::cout << "Intermediate decryption: " << intermediate1 << std::endl;
+    //std::cout << "Intermediate decryption: " << intermediate1 << std::endl;
 
     for (int i = 0; i < intermediate1.size(); i++){
         intermediate1[i] *= constants[i];

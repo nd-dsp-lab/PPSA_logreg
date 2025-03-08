@@ -519,7 +519,7 @@ double static getStdDev(CKKSPackedEncoding & encoding, size_t noiseScaleDeg, dou
         const NativeInteger& q = encoding.GetElementModulus().ConvertToInt();
         NativeInteger qHalf    = q >> 1;
 
-        std::cout << std::endl << "[ ";
+        //std::cout << std::endl << "[ ";
         for (size_t i = 0, idx = 0; i < slots; ++i, idx += gap) {
             std::complex<double> cur;
 
@@ -534,19 +534,19 @@ double static getStdDev(CKKSPackedEncoding & encoding, size_t noiseScaleDeg, dou
                 cur.imag((encoding.GetElement<NativePoly>()[idx + Nh]).ConvertToDouble());
 
             curValues[i] = cur;
-            std::cout << " " << cur;
+            //std::cout << " " << cur;
         }
-        std::cout << " ]" << std::endl;
+        //std::cout << " ]" << std::endl;
     }
 
     // compute m(1/X) corresponding to Conj(z), where z is the decoded vector
     auto conjugate = Conjugate2(curValues);
-    std::cout << "Conjugate " << conjugate << std::endl;
+    //std::cout << "Conjugate " << conjugate << std::endl;
 
     // Estimate standard deviation from 1/2 (m(X) - m(1/x)),
     // which corresponds to Im(z)
     double stddev = StdDev2(curValues, conjugate);
-    std::cout << "Standard Deviation " << stddev << std::endl;
+    //std::cout << "Standard Deviation " << stddev << std::endl;
 
     double logstd = std::log2(stddev);
     return logstd;

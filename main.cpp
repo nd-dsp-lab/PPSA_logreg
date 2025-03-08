@@ -257,7 +257,7 @@ void handler(int sig) {
 double slap(int argc, char **argv, Mat& inputmatrix) {
     // Set up signal handling.
     signal(SIGSEGV, handler);
-    std::cout << "Hello, World!" << std::endl;
+    //std::cout << "Hello, World!" << std::endl;
     
     // Default parameters.
     unsigned int plain_bits = 40; // log t
@@ -332,7 +332,7 @@ double slap(int argc, char **argv, Mat& inputmatrix) {
     // Decrypt using the coefficient vector.
     std::vector<double> outputvec = pp.PolynomialDecryption(constants, 1, decrypt_times);
     
-    std::cout << "Final output: " << outputvec << std::endl;
+    //std::cout << "Final output: " << outputvec << std::endl;
     
     // Sum the output vector and return the result.
     double sum = std::accumulate(outputvec.begin(), outputvec.end(), 0.0);
@@ -441,15 +441,19 @@ int main(int argc, char* argv[]) {
     double learningRate = 0.1;
     int epochs = 1000;
     std::vector<double> bestWeights = trainLogisticRegression(X_train, y_train, X_val, y_val, learningRate, epochs);
-
+    auto start_plain = std::chrono::high_resolution_clock::now();
     // 2. Compute testing accuracy using the standard logistic regression model.
     double standardAccuracy = computeAccuracy(X_test, y_test, bestWeights);
+    auto end_plain = std::chrono::high_resolution_clock::now();
+    auto duration_plain = std::chrono::duration_cast<std::chrono::microseconds>(end_plain - start_plain).count();
+    std::cout << "Plaintext inference took " << duration_plain << " microseconds." << std::endl;
     std::cout << "\nStandard Logistic Regression Test Accuracy: " 
               << standardAccuracy * 100.0 << "%" << std::endl;
 
     // 3. For each test sample, use sigmoidapprox() to get an approximate prediction.
-    // Here we assume that sigmoidapprox() returns an approximation of sigmoid(w'x).
+    // Here we use third-degree polynomial taylor expansion for sigmoid approximation.
     // We threshold the approximation at 0.5 to assign a label.
+    auto start_ppsa = std::chrono::high_resolution_clock::now();
     int correctApprox = 0;
     for (size_t i = 0; i < X_test.size(); i++) {
         // For each test sample, use its feature vector.
@@ -463,6 +467,10 @@ int main(int argc, char* argv[]) {
             correctApprox++;
         }
     }
+    auto end_ppsa = std::chrono::high_resolution_clock::now();
+    auto duration_ppsa = std::chrono::duration_cast<std::chrono::seconds>(end_ppsa - start_ppsa).count();
+    std::cout << "PPSA inference took " << duration_ppsa << " seconds." << std::endl;
+
     double approxAccuracy = static_cast<double>(correctApprox) / X_test.size();
     std::cout << "Sigmoid Approximation Test Accuracy (via slap): " 
               << approxAccuracy * 100.0 << "%" << std::endl;
